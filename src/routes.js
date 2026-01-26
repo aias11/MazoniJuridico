@@ -6,18 +6,14 @@ import Home from './pages/home'
 
 const Stack = createStackNavigator();
 
-export default function Routes() {
+export default function Routes({ userToken }) { 
   return (
-    <Stack.Navigator
-      initialRouteName='Login'
-      screenOptions={{
-        headerShown: false
-      }} >
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
       {userToken == null ? (
         <Stack.Screen name="Login" component={Login} />
       ) : (
         <Stack.Screen name="Home" component={Home} />
       )}
     </Stack.Navigator>
-  )
+  );
 }
