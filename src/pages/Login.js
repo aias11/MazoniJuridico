@@ -7,7 +7,7 @@ import {
   StyleSheet,
   Image,
   ToastAndroid,
-  KeyboardAvoidingView, 
+  KeyboardAvoidingView,
   TouchableWithoutFeedback,
   Keyboard,
   ScrollView,
@@ -20,6 +20,8 @@ import api from '../services/api';
 import AuthContext from '../services/authContext';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Logo1 from '../assets/Logo1.png'
+import LinearGradient from 'react-native-linear-gradient';
+
 
 
 
@@ -46,7 +48,15 @@ const Login = () => {
     loadCredentials();
   }, []);
 
+    useEffect(() => {
+      api.consultaProcesso(
+        (response) => {
+          console.log('Consulta processo sucesso:', response);
+        })
+      }, [])
+
   const onLogin = async () => {
+    
     try {
       setSpinnerVisible(true);
       setError(false);
@@ -91,59 +101,71 @@ const Login = () => {
   }
 
   return (
-    <KeyboardAvoidingView
-    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    style={{ flex: 1 }}
-  >
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <ScrollView 
-        contentContainerStyle={styles.container} 
-        bounces={false}
+    <LinearGradient
+      colors={['#F2CF7A', '#fff']}
+      useAngle={true}
+      angle={130}
+      angleCenter={{ x: 0.35, y: 0.35 }}
+      
+      style={styles.gradientContainer}>
+
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{ flex: 1 }}
       >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <ScrollView
+            contentContainerStyle={styles.container}
+            bounces={false}
+          >
 
-      <Image source={Logo1} style={styles.logo} />
+            <Image source={Logo1} style={styles.logo} />
 
-      <View style={styles.inputWrapper}>
-        <Icon name="person-outline" size={20} color="#666" style={styles.icon} />
-        <TextInput
-          placeholder="Login"
-          placeholderTextColor="#999"
-          style={styles.inputField}
-          value={username}
-          onChangeText={setUsername}
-        />
-      </View>
+            <View style={styles.inputWrapper}>
+              <Icon name="person-outline" size={20} color="#666" style={styles.icon} />
+              <TextInput
+                placeholder="Login"
+                placeholderTextColor="#999"
+                style={styles.inputField}
+                value={username}
+                onChangeText={setUsername}
+              />
+            </View>
 
-      <View style={styles.inputWrapper}>
-        <Icon name="lock-closed-outline" size={20} color="#666" style={styles.icon} />
-        <TextInput
-          placeholder="Senha"
-          secureTextEntry={true}
-          placeholderTextColor="#999"
-          style={styles.inputField}
-          value={password}
-          onChangeText={setPassword}
-        />
-      </View>
+            <View style={styles.inputWrapper}>
+              <Icon name="lock-closed-outline" size={20} color="#666" style={styles.icon} />
+              <TextInput
+                placeholder="Senha"
+                secureTextEntry={true}
+                placeholderTextColor="#999"
+                style={styles.inputField}
+                value={password}
+                onChangeText={setPassword}
+              />
+            </View>
 
-      <TouchableOpacity style={styles.containerBotao} onPress={onLogin}>
-        <View style={styles.botao}>
-          <Text style={styles.textoBotao}>Entrar</Text>
-        </View>
-      </TouchableOpacity>
+            <TouchableOpacity style={styles.containerBotao} onPress={onLogin}>
+              <View style={styles.botao}>
+                <Text style={styles.textoBotao}>Entrar</Text>
+              </View>
+            </TouchableOpacity>
 
-    </ScrollView>
-    </TouchableWithoutFeedback>
-  </KeyboardAvoidingView>
+          </ScrollView>
+        </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
+    </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  gradientContainer:{
     flex: 1,
+  },
+  container: {
+    flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f5f5f5',
+    //backgroundColor: '#f5f5f5',
     paddingVertical: 20,
   },
   title: {
@@ -152,15 +174,15 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   inputWrapper: {
-    flexDirection: 'row', 
+    flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#fff',
     width: '85%',
     height: 55,
     borderRadius: 20,
     paddingHorizontal: 15,
-    marginBottom: 20, 
-    elevation: 5, 
+    marginBottom: 20,
+    elevation: 5,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -180,8 +202,8 @@ const styles = StyleSheet.create({
   },
   botao: {
     width: '40%',
-    height: 50,
-    backgroundColor: '#D3AF37',
+    height: 55,
+    backgroundColor: '#E8C675',
     borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
@@ -190,6 +212,7 @@ const styles = StyleSheet.create({
   textoBotao: {
     color: '#fff',
     fontWeight: 'bold',
+    letterSpacing: 0.5
   },
   logo: {
     width: '90%',

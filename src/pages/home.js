@@ -19,17 +19,25 @@ const Home = () => {
     getStoredToken();
   }, []);
 
-  const { signOut } = React.useContext(AuthContext);
+  useEffect(() => {
+    api.consultaProcesso(
+      (response) => {
+        console.log('Consulta processo sucesso:', response);
+      })
+    }, [])
 
-  return (
+const { signOut } = React.useContext(AuthContext);
 
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <TouchableOpacity
-        onPress={signOut}>
-        <Icon name='logout' size={20} color={'#000'}/>
-      </TouchableOpacity>
-      <Text>Logado com sucesso!</Text>
-    </View>
-  );
+return (
+
+
+  <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+    <TouchableOpacity
+      onPress={signOut}>
+      <Icon name='logout' size={20} color={'#000'} />
+    </TouchableOpacity>
+    <Text>Logado com sucesso!</Text>
+  </View>
+);
 };
 export default Home
