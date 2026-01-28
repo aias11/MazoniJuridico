@@ -89,19 +89,15 @@ var api = {
   apiGet: async function (url, Parameters, onSuccess, onError) {
     let token = await AsyncStorage.getItem('token');
 
-    this.axiosApi
-      .get(
-        url,
-
-        {
-          headers: {
-            authorization: 'bearer ' + token,
-          },
-          params: Parameters,
+    // Adicione o return aqui para garantir a promessa
+    return this.axiosApi
+      .get(url, {
+        headers: {
+          authorization: 'bearer ' + token,
         },
-      )
+        params: Parameters,
+      })
       .then(response => api.handleReturn(response, onSuccess, onError))
-
       .catch(error => api.handleError(error, onError));
   },
 
@@ -138,11 +134,11 @@ var api = {
       .catch(error => api.handleError(error, onError));
   },
 
-  consultaProcesso: function (onSuccess, onError){
+  consultaProcesso: function (onSuccess, onError) {
     this.apiGet('/Juridico/ProcessosConsulta', {}, onSuccess, onError);
   },
-  consultaDetalhada: function (pi, onSuccess, onError){
-    this.apiGet('/Juridico/ProcessoDetalhado', {pi}, onSuccess, onError);
+  consultaDetalhada: function (pi, onSuccess, onError) {
+    this.apiGet('/Juridico/ProcessoDetalhado', { pi }, onSuccess, onError);
   }
 }
 api.init();
