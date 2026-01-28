@@ -1,5 +1,5 @@
 import React, { useMemo, useReducer, useEffect } from 'react';
-import { StatusBar } from 'react-native';
+import { StatusBar } from 'react-native'; // Importação única e correta
 import { NavigationContainer } from '@react-navigation/native';
 import Toast from 'react-native-toast-message';
 import FlashMessage from 'react-native-flash-message';
@@ -22,7 +22,7 @@ const App = () => {
       }
     },
     { isLoading: true, userToken: null }
-  )
+  );
 
   const authContext = useMemo(() => ({
     signIn: async (token) => {
@@ -30,12 +30,12 @@ const App = () => {
     },
     signOut: async () => {
       await AsyncStorage.removeItem('token');
-      dispatch({ type: 'SIGN_OUT' })
+      dispatch({ type: 'SIGN_OUT' });
     },
   }), []);
 
   useEffect(() => {
-    api.setContext(authContext);
+    api.setContext(authContext); // Vincula o contexto de autenticação à API
 
     const bootstrapAsync = async () => {
       let userToken;
@@ -44,7 +44,7 @@ const App = () => {
       } catch (e) {
         console.log('Erro ao restaurar token');
       }
-      dispatch({ type: 'RESTORE_TOKEN', token: userToken })
+      dispatch({ type: 'RESTORE_TOKEN', token: userToken });
     };
     bootstrapAsync();
   }, [authContext]);
@@ -54,8 +54,14 @@ const App = () => {
   return (
     <SafeAreaProvider>
       <AuthContext.Provider value={authContext}>
+        {/* Configuração para remover a barra branca e tornar o topo transparente */}
+        <StatusBar
+          barStyle="dark-content"
+          translucent={true}
+          backgroundColor="transparent"
+        />
+        
         <NavigationContainer>
-          <StatusBar barStyle="dark-content" backgroundColor="#FFF" />
           <FlashMessage position="top" />
           <Routes userToken={state.userToken} />
         </NavigationContainer>

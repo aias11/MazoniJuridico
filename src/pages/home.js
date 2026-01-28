@@ -88,12 +88,10 @@ const Home = () => {
       <View style={{ flex: 1 }}>
         <View style={styles.screen}>
           {processos.map((processo) => (
-            <TouchableOpacity
+            <View
               key={processo.pi}
               style={styles.itemProcesso}
-              onPress={() => {
-                navigation.navigate('DadosProcesso', {pi: processo.pi})
-              }}>
+            >
               <View style={styles.container}>
 
                 <View style={{
@@ -126,8 +124,21 @@ const Home = () => {
                     {processo.processo}
                   </Text>
                 </View>
+                <View style={{
+                  flexDirection: 'row',
+                  justifyContent: 'flex-end',
+                  marginTop: 10,
+                }}>
+                  <TouchableOpacity
+                    style={{ backgroundColor: '#F2CF7A', padding: 10, borderRadius: 8, paddingHorizontal: 20 }}
+                    onPress={() => {
+                      navigation.navigate('DadosProcesso', { pi: processo.pi })
+                    }}>
+                    <Text style={{ fontWeight: 'bold'}}>Visualizar</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
-            </TouchableOpacity>
+            </View>
           ))}
         </View>
       </View>
@@ -149,7 +160,7 @@ const styles = StyleSheet.create({
   },
   itemProcesso: {
     width: '90%',
-    height: 120,
+    height: 170,
     backgroundColor: '#fff',
     borderRadius: 8,
     marginBottom: 10,
