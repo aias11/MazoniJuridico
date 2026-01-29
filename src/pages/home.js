@@ -7,6 +7,7 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import AuthContext from '../services/authContext';
+import api from '../services/api';
 
 
 const Home = () => {
