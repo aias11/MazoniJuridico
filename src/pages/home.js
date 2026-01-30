@@ -120,15 +120,15 @@ const Home = () => {
                     {processo.objeto}
                   </Text>
 
-                  <Text style={{ fontSize: 18, alignSelf: 'flex-end' }}>
-                    {processo.processo}
-                  </Text>
                 </View>
                 <View style={{
                   flexDirection: 'row',
-                  justifyContent: 'flex-end',
+                  justifyContent: 'space-between',
                   marginTop: 10,
                 }}>
+                  <Text style={{ fontSize: 18, alignSelf: 'flex-end' }}>
+                    {processo.processo}
+                  </Text>
                   <TouchableOpacity
                     style={{ backgroundColor: '#F2CF7A', padding: 10, borderRadius: 8, paddingHorizontal: 20 }}
                     onPress={() => {
