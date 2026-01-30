@@ -22,6 +22,18 @@ const DadosProcesso = () => {
   const [loading, setLoading] = useState(true);
   const [processo, setProcesso] = useState(null);
   const [erro, setErro] = useState(null);
+  const [andamento, setAndamento] = useState([]);
+
+  const formatarData = (dataISO) => {
+    if (!dataISO) return "";
+    try {
+      const [data] = dataISO.split('T');
+      const [ano, mes, dia] = data.split('-');
+      return `${dia}/${mes}/${ano}`;
+    } catch (e) {
+      return dataISO;
+    }
+  };
 
   useEffect(() => {
     if (!pi) {
@@ -36,13 +48,18 @@ const DadosProcesso = () => {
     api.consultaDetalhada(
       pi,
       (response) => {
-        // A API retorna um array, pegamos o primeiro item
         const dados = Array.isArray(response) && response.length > 0 ? response[0] : null;
 
         if (dados && typeof dados === "object") {
           setProcesso(dados);
+          if (Array.isArray(dados.Andamentos)) {
+            setAndamento(dados.Andamentos);
+          } else {
+            setAndamento([]);
+          }
         } else {
           setProcesso(null);
+          setAndamento([]);
           setErro("Nenhum dado válido retornado pela API");
         }
         setLoading(false);
@@ -54,6 +71,11 @@ const DadosProcesso = () => {
       }
     );
   }, [pi]);
+
+  useEffect(() => {
+    console.log('Processo', processo);
+    console.log('Andamento', andamento)
+  }, [processo,andamento])
 
   if (loading) {
     return (
@@ -78,8 +100,7 @@ const DadosProcesso = () => {
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" translucent backgroundColor="transparent" />
-      
-      {/* HEADER COM GRADIENTE COBRINDO O TOPO */}
+
       <View style={styles.headerContainer}>
         <LinearGradient
           colors={['#F2CF7A', '#fff']}
@@ -91,17 +112,14 @@ const DadosProcesso = () => {
             <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
               <Ionicons name='arrow-back' size={28} color="#0f172a" />
             </TouchableOpacity>
-
             <Text style={styles.headerTitle}>Processo {pi}</Text>
-
             <Text style={styles.headerCode}>{processo?.cliente_codigo || "000"}</Text>
           </SafeAreaView>
         </LinearGradient>
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        
-        {/* LOCALIZAÇÃO */}
+
         <View style={styles.localContainer}>
           <Ionicons name="location-sharp" size={20} color="#F2CF7A" />
           <Text style={styles.localText}>
@@ -109,37 +127,26 @@ const DadosProcesso = () => {
           </Text>
         </View>
 
-        {/* CARD DE DETALHES */}
         <View style={styles.card}>
           <Text style={styles.title}>{processo?.RoteiroDesc || "Sem Descrição"}</Text>
-          
           <Text style={styles.sectionTitle}>Detalhes do Processo</Text>
-          
-          <View style={styles.infoRow}>
-            <Text style={styles.label}>Data de Cadastro: </Text>
-            <Text style={styles.value}>{processo?.Data_Cadastro || '—'}</Text>
-          </View>
 
-          <View style={styles.infoRow}>
-            <Text style={styles.label}>Código do Cliente: </Text>
-            <Text style={styles.value}>{processo?.cliente_codigo || '—'}</Text>
-          </View>
-
-          <View style={styles.infoRow}>
-            <Text style={styles.label}>Nome Cliente: </Text>
-            <Text style={styles.value}>{processo?.cliente_titular || '—'}</Text>
-          </View>
-
-          <View style={styles.infoRow}>
-            <Text style={styles.label}>Descrição: </Text>
-            <Text style={styles.value}>{processo?.objeto || '—'}</Text>
-          </View>
+          {[
+            { label: "Data de Cadastro: ", value: processo?.Data_Cadastro?.split(' ')[0]},
+            { label: "Papel Contra: ", value: processo?.contra_papel },
+            { label: "Contra Titular: ", value: processo?.contra_titular },
+            { label: "Objeto: ", value: processo?.objeto }
+          ].map((item, i) => (
+            <View key={i} style={styles.infoRow}>
+              <Text style={styles.label}>{item.label}</Text>
+              <Text style={styles.value}>{item.value || '—'}</Text>
+            </View>
+          ))}
         </View>
 
-        {/* CARD DE ANDAMENTO */}
         <View style={styles.card}>
-          <Text style={[styles.sectionTitle, { color: '#F2CF7A' }]}>Andamento</Text>
-          
+          <Text style={[styles.sectionTitle, { color: '#E8C675' }]}>Andamento</Text>
+
           <View style={styles.infoRow}>
             <Text style={styles.label}>Status: </Text>
             <Text style={styles.value}>
@@ -147,11 +154,31 @@ const DadosProcesso = () => {
             </Text>
           </View>
 
-          <View style={styles.subCard}>
-            <Text style={styles.subCardText}>{processo?.RoteiroDesc}</Text>
-          </View>
-        </View>
+          {andamento.map((item, index) => (
+            <View key={index} style={styles.subCard}>
+              <View style={styles.cardContent}>
 
+                <View style={styles.leftColumn}>
+                  <Text style={styles.operadorText} numberOfLines={2}>
+                    {item?.andamento_operador}
+                  </Text>
+                  <Text style={styles.dataText}>
+                    {formatarData(item?.andamento_data)}
+                  </Text>
+                </View>
+
+                <View style={styles.divisorVertical} />
+
+                <View style={styles.rightColumn}>
+                  <Text style={styles.descricaoText}>
+                    {item?.andamento_andamento}
+                  </Text>
+                </View>
+
+              </View>
+            </View>
+          ))}
+        </View>
       </ScrollView>
     </View>
   );
@@ -160,67 +187,61 @@ const DadosProcesso = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: "#f5f5f5"
   },
   center: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    padding: 20,
+    padding: 20
   },
   headerContainer: {
     width: '100%',
-    height: 130, // Altura do Header
+    height: 130
   },
   gradient: {
     flex: 1,
     borderBottomLeftRadius: 25,
     borderBottomRightRadius: 25,
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
+    elevation: 5
   },
   headerContent: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    paddingTop: 10,
+    paddingTop: 10
   },
   headerTitle: {
     fontSize: 20,
     fontWeight: 'bold',
     color: '#0f172a',
     flex: 1,
-    textAlign: 'center',
+    textAlign: 'center'
   },
   headerCode: {
     fontSize: 18,
     color: '#0f172a',
     fontWeight: '600',
     minWidth: 40,
-    textAlign: 'right',
+    textAlign: 'right'
   },
   scrollContent: {
     paddingBottom: 30,
-    alignItems: 'center',
+    alignItems: 'center'
   },
   localContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 25,
     marginTop: 20,
-    marginBottom: 5,
-    width: '100%',
-    alignSelf: 'flex-start',
+    width: '100%'
   },
   localText: {
     fontSize: 14,
     color: '#64748b',
     marginLeft: 6,
-    fontWeight: '600',
+    fontWeight: '600'
   },
   card: {
     backgroundColor: "#fff",
@@ -228,70 +249,96 @@ const styles = StyleSheet.create({
     padding: 20,
     marginTop: 15,
     width: '90%',
-    elevation: 3,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
+    elevation: 3
   },
   title: {
     fontSize: 18,
     fontWeight: "bold",
     color: "#E8C675",
     marginBottom: 12,
-    textTransform: 'uppercase',
+    textTransform: 'uppercase'
   },
   sectionTitle: {
     fontSize: 19,
     fontWeight: 'bold',
     marginBottom: 15,
-    color: '#1e293b',
+    color: '#1e293b'
   },
   infoRow: {
     flexDirection: 'row',
     marginBottom: 10,
-    flexWrap: 'wrap',
+    flexWrap: 'wrap'
   },
   label: {
-    fontWeight: 'bold',
+    ontWeight: 'bold',
     color: '#475569',
-    fontSize: 15,
+    fontSize: 15
   },
   value: {
     color: '#1e293b',
-    fontSize: 15,
-    flex: 1,
+    fontSize: 15, flex: 1
   },
   subCard: {
     backgroundColor: '#f1f5f9',
     borderRadius: 10,
-    padding: 12,
-    marginTop: 10,
-    borderLeftWidth: 4,
+    marginTop: 12,
+    borderLeftWidth: 6,
     borderLeftColor: '#E8C675',
+    overflow: 'hidden',
   },
-  subCardText: {
+  cardContent: {
+    flexDirection: 'row',
+    padding: 15,
+    alignItems: 'stretch', 
+  },
+  leftColumn: {
+    width: 90, 
+    justifyContent: 'center',
+  },
+  divisorVertical: {
+    width: 1.5,
+    backgroundColor: '#cbd5e1',
+    marginHorizontal: 15, 
+  },
+  rightColumn: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  operadorText: {
     fontSize: 13,
-    fontWeight: 'bold',
+    fontWeight: '800',
+    color: '#334155',
+    textTransform: 'uppercase',
+  },
+  dataText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#64748b',
+    marginTop: 4,
+  },
+  descricaoText: {
+    fontSize: 14,
     color: '#475569',
+    lineHeight: 20,
   },
-  loadingText: {
-    marginTop: 15,
-    fontSize: 16,
-    color: '#E8C675',
-    fontWeight: '600'
+
+  loadingText: { 
+    marginTop: 15, 
+    fontSize: 16, 
+    color: '#E8C675', 
+    fontWeight: '600' 
   },
-  errorText: {
-    fontSize: 16,
-    color: "#d32f2f",
-    textAlign: "center",
-    marginBottom: 20
+  errorText: { 
+    fontSize: 16, 
+    color: "#d32f2f", 
+    textAlign: "center", 
+    marginBottom: 20 
   },
-  btnVoltar: {
-    backgroundColor: '#E8C675',
-    paddingHorizontal: 30,
-    paddingVertical: 10,
-    borderRadius: 8
+  btnVoltar: { 
+    backgroundColor: '#E8C675', 
+    paddingHorizontal: 30, 
+    paddingVertical: 10, 
+    borderRadius: 8 
   }
 });
 

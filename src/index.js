@@ -35,7 +35,7 @@ const App = () => {
   }), []);
 
   useEffect(() => {
-    api.setContext(authContext); // Vincula o contexto de autenticação à API
+    api.setContext(authContext); 
 
     const bootstrapAsync = async () => {
       let userToken;
@@ -54,7 +54,6 @@ const App = () => {
   return (
     <SafeAreaProvider>
       <AuthContext.Provider value={authContext}>
-        {/* Configuração para remover a barra branca e tornar o topo transparente */}
         <StatusBar
           barStyle="dark-content"
           translucent={true}
