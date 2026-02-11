@@ -13,7 +13,6 @@ import api from "../services/api";
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import LinearGradient from 'react-native-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { FlatList } from "react-native-gesture-handler";
 
 const DadosProcesso = () => {
   const route = useRoute();
@@ -76,7 +75,7 @@ const DadosProcesso = () => {
   useEffect(() => {
     console.log('Processo', processo);
     console.log('Andamento', andamento)
-  }, [processo, andamento])
+  }, [processo,andamento])
 
   if (loading) {
     return (
@@ -133,7 +132,7 @@ const DadosProcesso = () => {
           <Text style={styles.sectionTitle}>Detalhes do Processo</Text>
 
           {[
-            { label: "Data de Cadastro: ", value: processo?.Data_Cadastro?.split(' ')[0] },
+            { label: "Data de Cadastro: ", value: processo?.Data_Cadastro?.split(' ')[0]},
             { label: "Número do Processo: ", value: pi },
             { label: "Parte Contrária: ", value: processo?.contra_titular },
             { label: "Objeto: ", value: processo?.objeto }
@@ -158,26 +157,33 @@ const DadosProcesso = () => {
               <View key={index} style={styles.subCard}>
                 <View style={styles.cardContent}>
 
-                  <View style={styles.leftColumn}>
-                    <Text style={styles.operadorText} numberOfLines={2}>
-                      {item?.andamento_operador}
-                    </Text>
-                    <Text style={styles.dataText}>
-                      {formatarData(item?.andamento_data)}
-                    </Text>
-                  </View>
+          {andamento.map((item, index) => (
+            <View key={index} style={styles.subCard}>
+              <View style={styles.cardContent}>
 
-                  <View style={styles.divisorVertical} />
+                <View style={styles.leftColumn}>
+                  <Text style={styles.operadorText} numberOfLines={2}>
+                    {item?.andamento_operador}
+                  </Text>
+                  <Text style={styles.dataText}>
+                    {formatarData(item?.andamento_data)}
+                  </Text>
+                </View>
 
-                  <View style={styles.rightColumn}>
-                    <Text style={styles.descricaoText}>
-                      {item?.andamento_andamento}
-                    </Text>
-                  </View>
+                <View style={styles.divisorVertical} />
+
+                <View style={styles.rightColumn}>
+                  <Text style={styles.descricaoText}>
+                    {item?.andamento_andamento}
+                  </Text>
+                </View>
 
                 </View>
               </View>
             ))}
+              </View>
+            </View>
+          ))}
         </View>
       </ScrollView>
     </View>
@@ -289,16 +295,16 @@ const styles = StyleSheet.create({
   cardContent: {
     flexDirection: 'row',
     padding: 15,
-    alignItems: 'stretch',
+    alignItems: 'stretch', 
   },
   leftColumn: {
-    width: 90,
+    width: 90, 
     justifyContent: 'center',
   },
   divisorVertical: {
     width: 1.5,
     backgroundColor: '#cbd5e1',
-    marginHorizontal: 15,
+    marginHorizontal: 15, 
   },
   rightColumn: {
     flex: 1,
@@ -322,23 +328,23 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
 
-  loadingText: {
-    marginTop: 15,
-    fontSize: 16,
-    color: '#E8C675',
-    fontWeight: '600'
+  loadingText: { 
+    marginTop: 15, 
+    fontSize: 16, 
+    color: '#E8C675', 
+    fontWeight: '600' 
   },
-  errorText: {
-    fontSize: 16,
-    color: "#d32f2f",
-    textAlign: "center",
-    marginBottom: 20
+  errorText: { 
+    fontSize: 16, 
+    color: "#d32f2f", 
+    textAlign: "center", 
+    marginBottom: 20 
   },
-  btnVoltar: {
-    backgroundColor: '#E8C675',
-    paddingHorizontal: 30,
-    paddingVertical: 10,
-    borderRadius: 8
+  btnVoltar: { 
+    backgroundColor: '#E8C675', 
+    paddingHorizontal: 30, 
+    paddingVertical: 10, 
+    borderRadius: 8 
   }
 });
 
