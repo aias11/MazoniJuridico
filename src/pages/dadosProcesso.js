@@ -154,7 +154,6 @@ const DadosProcesso = () => {
               {processo?.processo_concluido?.toLowerCase() === "s" ? "Concluído" : "Não Concluído"}
             </Text>
           </View>
-          <FlatList>
             {andamento.map((item, index) => (
               <View key={index} style={styles.subCard}>
                 <View style={styles.cardContent}>
@@ -179,7 +178,6 @@ const DadosProcesso = () => {
                 </View>
               </View>
             ))}
-          </FlatList>
         </View>
       </ScrollView>
     </View>
