@@ -154,9 +154,6 @@ const DadosProcesso = () => {
               {processo?.processo_concluido?.toLowerCase() === "s" ? "Concluído" : "Não Concluído"}
             </Text>
           </View>
-            {andamento.map((item, index) => (
-              <View key={index} style={styles.subCard}>
-                <View style={styles.cardContent}>
 
           {andamento.map((item, index) => (
             <View key={index} style={styles.subCard}>
@@ -182,9 +179,7 @@ const DadosProcesso = () => {
                 </View>
               </View>
             ))}
-              </View>
-            </View>
-          ))}
+
         </View>
       </ScrollView>
     </View>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import {
   View,
   Text,
@@ -6,63 +6,50 @@ import {
   TouchableOpacity,
   StyleSheet,
   Image,
-  ToastAndroid,
   KeyboardAvoidingView,
-  TouchableWithoutFeedback,
   Keyboard,
   ScrollView,
   Platform,
+  Alert,
 } from "react-native";
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import Spinner from 'react-native-loading-spinner-overlay';
-import { useNavigation } from '@react-navigation/native';
-import api from '../services/api';
-import AuthContext from '../services/authContext';
-import Icon from 'react-native-vector-icons/Ionicons';
-import Logo1 from '../assets/Logo1.png'
-import LinearGradient from 'react-native-linear-gradient';
-
-
-
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import Spinner from "react-native-loading-spinner-overlay";
+import { useNavigation } from "@react-navigation/native";
+import api from "../services/api";
+import AuthContext from "../services/authContext";
+import Icon from "react-native-vector-icons/Ionicons";
+import Logo1 from "../assets/Logo1.png";
+import LinearGradient from "react-native-linear-gradient";
 
 const Login = () => {
-  const navigation = useNavigation()
+  const navigation = useNavigation();
+  const { signIn } = useContext(AuthContext);
 
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [spinnerVisible, setSpinnerVisible] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
-  const [error, setError] = useState(false);
-
-  const { signIn } = React.useContext(AuthContext);
 
   useEffect(() => {
     const loadCredentials = async () => {
-      const savedUsername = await AsyncStorage.getItem('username');
-      const savedPassword = await AsyncStorage.getItem('password');
-      if (savedUsername && savedPassword) {
+      const savedUsername = await AsyncStorage.getItem("username");
+      if (savedUsername) {
         setUsername(savedUsername);
-        setPassword(savedPassword);
       }
     };
     loadCredentials();
   }, []);
 
-    useEffect(() => {
-      api.consultaProcesso(
-        (response) => {
-          console.log('Consulta processo sucesso:', response);
-        })
-      }, [])
-
   const onLogin = async () => {
-    
+    Keyboard.dismiss();
+    if (!username || !password) {
+      Alert.alert("Erro", "Preencha usuário e senha.");
+      return;
+    }
+
     try {
       setSpinnerVisible(true);
-      setError(false);
-      setErrorMessage('');
 
-      const Senha = '*J*' + password;
+      const Senha = "*J*" + password;
 
       await new Promise((resolve, reject) => {
         api.getToken(
@@ -70,120 +57,121 @@ const Login = () => {
           Senha,
           async () => {
             try {
-              await AsyncStorage.setItem('usuario', username);
-              await AsyncStorage.setItem('senha', password);
+              const token = await AsyncStorage.getItem("token");
+              if (!token) {
+                reject("Token não recebido.");
+                return;
+              }
 
-              const token = await AsyncStorage.getItem('token');
-
+              await AsyncStorage.setItem("username", username);
               await signIn(token);
-
               resolve();
-            } catch (innerErr) {
-              reject(innerErr);
+            } catch (err) {
+              reject(err);
             }
           },
           (err) => {
             reject(err);
           }
-        )
+        );
       });
-
-      setSpinnerVisible(false)
-
     } catch (err) {
+      const msg =
+        typeof err === "string"
+          ? err
+          : "Falha no login. Verifique seus dados.";
+      Alert.alert("Erro", msg);
+    } finally {
       setSpinnerVisible(false);
-      setError(true);
-      const msg = typeof err === 'string' ? err : 'Falha no login. Verifique seus dados.'
-      setErrorMessage(msg);
-      ToastAndroid.show(msg, ToastAndroid.LONG)
-
     }
-  }
+  };
 
   return (
     <LinearGradient
-      colors={['#F2CF7A', '#fff']}
+      colors={["#F2CF7A", "#fff"]}
       useAngle={true}
       angle={130}
       angleCenter={{ x: 0.35, y: 0.35 }}
-      
-      style={styles.gradientContainer}>
+      style={styles.gradientContainer}
+    >
+      <Spinner visible={spinnerVisible} />
 
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={{ flex: 1 }}
       >
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <ScrollView
-            contentContainerStyle={styles.container}
-            bounces={false}
-          >
+        <ScrollView
+          contentContainerStyle={styles.container}
+          bounces={false}
+          keyboardShouldPersistTaps="handled">
+          <Image source={Logo1} style={styles.logo} resizeMode="contain" />
 
-            <Image source={Logo1} style={styles.logo} />
+          <View style={styles.inputWrapper}>
+            <Icon
+              name="person-outline"
+              size={20}
+              color="#666"
+              style={styles.icon}
+            />
+            <TextInput
+              placeholder="Login"
+              placeholderTextColor="#999"
+              style={styles.inputField}
+              value={username}
+              onChangeText={setUsername}
+              autoCapitalize="none"
+            />
+          </View>
 
-            <View style={styles.inputWrapper}>
-              <Icon name="person-outline" size={20} color="#666" style={styles.icon} />
-              <TextInput
-                placeholder="Login"
-                placeholderTextColor="#999"
-                style={styles.inputField}
-                value={username}
-                onChangeText={setUsername}
-              />
+          <View style={styles.inputWrapper}>
+            <Icon
+              name="lock-closed-outline"
+              size={20}
+              color="#666"
+              style={styles.icon}
+            />
+            <TextInput
+              placeholder="Senha"
+              secureTextEntry={true}
+              placeholderTextColor="#999"
+              style={styles.inputField}
+              value={password}
+              onChangeText={setPassword}
+            />
+          </View>
+
+          <TouchableOpacity style={styles.containerBotao} onPress={onLogin}>
+            <View style={styles.botao}>
+              <Text style={styles.textoBotao}>Entrar</Text>
             </View>
-
-            <View style={styles.inputWrapper}>
-              <Icon name="lock-closed-outline" size={20} color="#666" style={styles.icon} />
-              <TextInput
-                placeholder="Senha"
-                secureTextEntry={true}
-                placeholderTextColor="#999"
-                style={styles.inputField}
-                value={password}
-                onChangeText={setPassword}
-              />
-            </View>
-
-            <TouchableOpacity style={styles.containerBotao} onPress={onLogin}>
-              <View style={styles.botao}>
-                <Text style={styles.textoBotao}>Entrar</Text>
-              </View>
-            </TouchableOpacity>
-
-          </ScrollView>
-        </TouchableWithoutFeedback>
+          </TouchableOpacity>
+        </ScrollView>
       </KeyboardAvoidingView>
     </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
-  gradientContainer:{
+  gradientContainer: {
     flex: 1,
   },
   container: {
     flexGrow: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    //backgroundColor: '#f5f5f5',
+    justifyContent: "center",
+    alignItems: "center",
     paddingVertical: 20,
   },
-  title: {
-    fontSize: 20,
-    marginBottom: 20,
-    fontWeight: 'bold',
-  },
   inputWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    width: '85%',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#fff",
+    width: "85%",
     height: 55,
     borderRadius: 20,
     paddingHorizontal: 15,
     marginBottom: 20,
     elevation: 5,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 5,
@@ -193,31 +181,32 @@ const styles = StyleSheet.create({
   },
   inputField: {
     flex: 1,
-    height: '100%',
-    color: '#000',
+    height: "100%",
+    color: "#000",
   },
   containerBotao: {
-    width: '100%',
-    alignItems: 'center',
+    width: "100%",
+    alignItems: "center",
   },
   botao: {
-    width: '40%',
+    width: "40%",
     height: 55,
-    backgroundColor: '#E8C675',
+    backgroundColor: "#E8C675",
     borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     marginTop: 10,
   },
   textoBotao: {
-    color: '#fff',
-    fontWeight: 'bold',
-    letterSpacing: 0.5
+    color: "#fff",
+    fontWeight: "bold",
+    letterSpacing: 0.5,
   },
   logo: {
-    width: '90%',
-    height: '30%'
-  }
+    width: "90%",
+    height: 150,
+    marginBottom: 30,
+  },
 });
 
 export default Login;
